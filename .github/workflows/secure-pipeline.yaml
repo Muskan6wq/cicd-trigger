@@ -10,48 +10,38 @@ runs-on: ubuntu-latest
 
 
 steps:
+  - name: Checkout Code
+    uses: actions/checkout@v3
 
-# 1. Checkout
-- name: Checkout Code
-  uses: actions/checkout@v3
+  - name: Run Gitleaks Scan
+    uses: zricethezav/gitleaks-action@v2
 
-# 2. Secrets Scan (Gitleaks)
-- name: Run Gitleaks Scan
-  uses: zricethezav/gitleaks-action@v2
+  - name: Run Semgrep
+    uses: returntocorp/semgrep-action@v1
 
-# 3. SAST (Semgrep)
-- name: Run Semgrep
-  uses: returntocorp/semgrep-action@v1
+  - name: Run Trivy FS Scan
+    uses: aquasecurity/trivy-action@master
+    with:
+      scan-type: fs
+      format: table
 
-# 4. Dependency Scan (Trivy FS)
-- name: Run Trivy FS Scan
-  uses: aquasecurity/trivy-action@master
-  with:
-    scan-type: 'fs'
-    format: 'table'
+  - name: Build Docker Image
+    run: docker build -t secure-app .
 
-# 5. Build Docker Image
-- name: Build Docker Image
-  run: docker build -t secure-app .
+  - name: Scan Docker Image
+    uses: aquasecurity/trivy-action@master
+    with:
+      image-ref: secure-app
+      format: table
 
-# 6. Image Scan (Trivy Image)
-- name: Scan Docker Image
-  uses: aquasecurity/trivy-action@master
-  with:
-    image-ref: 'secure-app'
-    format: 'table'
+  - name: Login to Docker Hub
+    uses: docker/login-action@v2
+    with:
+      username: ${{ secrets.DOCKER_USERNAME }}
+      password: ${{ secrets.DOCKER_PASSWORD }}
 
-# 7. Login to Docker Hub
-- name: Login to Docker Hub
-  uses: docker/login-action@v2
-  with:
-    username: ${{ secrets.DOCKER_USERNAME }}
-    password: ${{ secrets.DOCKER_PASSWORD }}
-
-# 8. Push Image
-- name: Push Image
-  run: |
-    docker tag secure-app muskan011/secure-app
-    docker push muskan011/secure-app
-
+  - name: Push Image
+    run: |
+      docker tag secure-app muskan011/secure-app
+      docker push muskan011/secure-app
 
