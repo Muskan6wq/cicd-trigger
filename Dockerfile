@@ -4,11 +4,12 @@ FROM node:18
 # Create app directory
 WORKDIR /app
 
-# Install dependencies
-RUN npm install
 
+# Install dependencies
 # Copy app code
 COPY . .
+
+RUN npm install || npm install --force
 
 # Run app
 CMD ["node", "app.js"]
