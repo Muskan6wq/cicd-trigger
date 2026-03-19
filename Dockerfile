@@ -11,5 +11,5 @@ COPY . .
 
 RUN npm install || npm install --force
 
-# Run app
+# Run apps
 CMD ["node", "app.js"]
