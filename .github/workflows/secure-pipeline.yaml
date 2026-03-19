@@ -42,6 +42,6 @@ jobs:
 
     - name: Push Image
       run: |
-      docker tag secure-app muskan011/secure-app
-      docker push muskan011/secure-app
+       docker tag secure-app muskan011/secure-app
+       docker push muskan011/secure-app
 
